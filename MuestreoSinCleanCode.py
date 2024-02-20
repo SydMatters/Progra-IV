@@ -9,28 +9,39 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
 
-class recuperacion(ctk.CTk):
+'''
+    Initialize the main window of the application.
+
+    Args :
+            title (str): Title of the window.
+            size (tuple): Size of the window.
+
+'''
+
+class mainWindow(ctk.CTk):
     def __init__(self, title, size):
         super().__init__()
         self.title(title)
-        self.geometry(f'{size[0]}x{size[1]}')
+        self.geometry(f'{size[0]}x{size[1]}')   
         self.minsize(size[0], size[1])
 
         self.menu = menu(self)
         self.graph = graph(self, self.menu)
         self.cuanti = table(self, self.menu)
 
-        self.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window close event
+        self.protocol("WM_DELETE_WINDOW", self.onCloseWindow)
+        
+    def onCloseWindow(self):
+        self.destroy()  #Properly close window
+        
 
-    def on_closing(self):
-        # Clean up any scheduled tasks here
-        self.destroy()  # Properly close the tkinter window
-
+#Create the menu and widgets
 class menu(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, corner_radius=8, border_color='black', border_width=2)
         self.place(relx=0.02, rely=0.9, relwidth=0.5, relheight=0.08, anchor='nw')
 
+        #Variables for the wave
         self.time = ctk.DoubleVar(value=1)
         self.amplitude = ctk.DoubleVar(value=1)
         self.freq = ctk.DoubleVar(value=60)
@@ -38,6 +49,7 @@ class menu(ctk.CTkFrame):
         self.create_widgets()
 
 
+    #Create the widgets of the window.
     def create_widgets(self):
         time_label = ctk.CTkLabel(self, text='Time:', width=50, height=25, corner_radius=8)
         time_entry = ctk.CTkEntry(self, width=80, height=25, corner_radius=8, border_color='lime green', textvariable=self.time)
@@ -59,41 +71,50 @@ class menu(ctk.CTkFrame):
         frequency_entry.place(relx = 0.89,rely=0.1,anchor= 'n')
         frequency_scale.place(relx=0.79,rely=0.55,anchor='n' )
 
-
+#Creates the graph.
 class graph(ctk.CTkFrame):
     def __init__(self, parent, menu_instance):
         super().__init__(parent, corner_radius=8, fg_color='white', border_color='black', border_width=2)
         self.place(relx=0.02, rely=0.02, relwidth=0.5, relheight=0.87, anchor='nw')
         
+        #Bring the variables from the menu
         self.menu = menu_instance
-        self.menu.time.trace_add('write',self.createG)
-        self.menu.amplitude.trace_add('write',self.createG)
-        self.menu.freq.trace_add('write',self.createG)
+        self.menu.time.trace_add('write',self.createGraph)
+        self.menu.amplitude.trace_add('write',self.createGraph)
+        self.menu.freq.trace_add('write',self.createGraph)
 
+        #Plot the axis
         self.figure, self.ax = plt.subplots(figsize=(6, 4))
         self.canvas = FigureCanvasTkAgg(self.figure, master=self) 
         self.canvas_widget = self.canvas.get_tk_widget()
         self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-    def createG (self, *args):
+    #Plot the graph
+    def createGraph (self, *args):
         time = self.menu.time.get()
         amplitude = self.menu.amplitude.get()
         freq = self.menu.freq.get()
         
         Period = 1/freq
 
-        stopTime = np.arange(0,time,Period/1000)
-        signal = [sin(ti,amplitude,freq) for ti in stopTime]
+        timeArrange = np.arange(0,time,Period/1000)
+        signal = [sin(ti,amplitude,freq) for ti in timeArrange]
 
         self.ax.clear()
-        self.ax.plot(stopTime, signal, label='Signal', color='blue')
+        self.ax.plot(timeArrange, signal, label='Signal', color='blue')
         self.ax.set_xlabel('Time')
         self.ax.set_ylabel('Amplitude')
         self.ax.set_title('Señal Sinosoidal')
         self.ax.grid(True)
         self.ax.legend()
         self.canvas.draw()
+"""
+Inicialize the table frame
 
+Args: 
+        parent (ctk.CTkFrame): The parent frame.
+        menu_instance (ctk.CTkFrame): The menu instance.
+"""
 class table(ctk.CTkFrame):
     def __init__(self, parent, menu_instance):
         super().__init__(parent, corner_radius=8, fg_color='white', border_color='black', border_width=2)
@@ -101,13 +122,14 @@ class table(ctk.CTkFrame):
 
         self.menu = menu_instance
 
+        #Bring the variables from the menu
         self.menu.time.trace_add('write',self.codification)
         self.menu.amplitude.trace_add('write',self.codification)
         self.menu.freq.trace_add('write',self.codification)
 
-        yscrollbar = ttk.Scrollbar(self, orient="vertical")
-        yscrollbar.pack(side="right", fill="y")
-        self.tree = ttk.Treeview(self,columns=("Time","Signal","Codi"), yscrollcommand=yscrollbar.set)
+        scrollbar = ttk.Scrollbar(self, orient="vertical")
+        scrollbar.pack(side="right", fill="y")
+        self.tree = ttk.Treeview(self,columns=("Time","Signal","Codi"), yscrollcommand=scrollbar.set)
 
         self.tree.column('#0',anchor='center',width=50)
         self.tree.column("Time",anchor='center',width=150)
@@ -119,37 +141,62 @@ class table(ctk.CTkFrame):
         self.tree.heading("Signal",text="Signal",anchor='center')
         self.tree.heading("Codi",text="Codification",anchor='center')
 
-        yscrollbar.config(command=self.tree.yview)
+        scrollbar.config(command=self.tree.yview)
         self.tree.pack(fill='both',expand=True)
-
-    def codification(self,*args):
+    """
+    This method takes the values from the menu and codifies them into binary format.
+    It also creates the treeview with the values.
+    """
+    def codification(self, *args):
         time = self.menu.time.get()
         amplitude = self.menu.amplitude.get()
         freq = self.menu.freq.get()
 
-        stopTime = np.linspace(0,time,1000)
-        n = np.arange(0,1000,1)
-        signal = [sin(ti,amplitude,freq) for ti in stopTime]
+        timeArrange = np.linspace(0, time, 1000)
+        n = np.arange(0, 1000, 1)
+        signal = [sin(ti, amplitude, freq) for ti in timeArrange]
 
         min_val = min(signal)
         max_val = max(signal)
-        delta = (max_val-min_val)/16
-        cuantiSignal = np.round((signal-min_val)/delta)
+    
+        # Handle the case where max_val and min_val are equal
+        if max_val == min_val:
+            delta = 1
+        else:
+            delta = (max_val - min_val) / 16
 
-        maxCodi = max(cuantiSignal)
-        n_bits= int(np.ceil(np.log2(maxCodi+1)))
-        codiSignal =[format(int(val), f'0{n_bits}b') for val in cuantiSignal]
+        cuantiSignal = np.round((signal - min_val) / delta)
+
+        # Handle the case where delta is zero
+        if delta == 0:
+            n_bits = 1
+        else:
+            maxCodi = np.nanmax(cuantiSignal)
+            if np.isnan(maxCodi):
+                n_bits = 1
+            else:
+                n_bits = int(np.ceil(np.log2(maxCodi + 1)))
+
+        codiSignal = [format(int(val), f'0{n_bits}b') for val in cuantiSignal]
 
         self.tree.delete(*self.tree.get_children())
-        
-        for a, t, s, c  in zip(n,stopTime, signal, codiSignal):
-            self.tree.insert("", "end", text= a,values=(f"{t:.3f}",f"{s:.3f}", c))
+
+        for a, t, s, c in zip(n, timeArrange, signal, codiSignal):
+            self.tree.insert("", "end", text=a, values=(f"{t:.3f}", f"{s:.3f}", c))
 
 
-def sin(t,A,f):
-    omega = 2*np.pi*f
-    return A*np.sin(t * omega)
+'''
+Return sine of time with the given amplitude and frequency
+
+Args:
+    time (float): Time at wich to evaluate the sine.
+    amplitude (float): Amplitude of the sine wave.
+    frequency (float): Frequency of the sine wave.
+'''
+def sin(time,amplitude,frequency):
+    omega = 2*np.pi*frequency
+    return amplitude*np.sin(time * omega)
 
 if __name__ == "__main__":
-    app = recuperacion('Recuperación Parcial 2 Fisica III', (1080, 720))
+    app = mainWindow('Recuperación Parcial 2 Fisica III', (1080, 720))
     app.mainloop()

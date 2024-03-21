@@ -95,9 +95,9 @@ class graph(ctk.CTkFrame):
         amplitude = self.menu.amplitude.get()
         freq = self.menu.freq.get()
         
-        Period = 1/freq
+        period = 1/freq
 
-        timeArrange = np.arange(0,time,Period/1000)
+        timeArrange = np.arange(0,time,period/1000)
         signal = [sin(ti,amplitude,freq) for ti in timeArrange]
 
         self.ax.clear()

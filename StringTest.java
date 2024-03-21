@@ -15,10 +15,10 @@ public class StringTest {
         String firstString = "Test123";
         String secondString = "Test" + 123;
 
-        if (firstString.equals(secondString)) {
+        if (firstString.equals(secondString)) { //Comparing strings
             System.out.println("Both strings are equal");
         } */
-
+        /*
         String firstString = "Test123";
         String secondString = "TEST123";
 
@@ -26,6 +26,7 @@ public class StringTest {
             System.out.println("Both strings are equal");
         } else {
             System.out.println("Both strings are not equal");
-        }
+        }*/
+
     } 
 }

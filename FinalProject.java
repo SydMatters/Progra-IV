@@ -18,6 +18,7 @@ public class FinalProject {
     //The declaration of the list of users.
     public static List <String []> users = new ArrayList<>();
 
+    //Method to clear terminal.
     public static void clearTerminal() {
         try {
             new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
@@ -37,11 +38,12 @@ public class FinalProject {
         System.out.println("2. Sing in.");
         System.out.println("3. Exit");
         byte option = scanner.nextByte();
-        scanner.nextLine();
+        scanner.nextLine(); //I add this nextLine cause nextByte only recive the next Byte and not the \n character.
         return option;
 
     }
 
+    //Method that applies the logic of the singIn request.
     public static boolean signIn(String entryEmail, String entryPassword) {
         if (users.isEmpty()) {
             System.out.println("There are no registered users!!!");
@@ -60,11 +62,13 @@ public class FinalProject {
                     }
                 }
             }
-            System.out.println("There's no registered user with email " + entryEmail);
+            System.out.println("There's no registered user with email " + entryEmail);//Shows the wrong email address.
             return false;
         }
     }
     
+
+    //Method that request the users sign-in date and limits the number of tries to sign in.
     public static void menuSignIn() {
         int triesOfSign = 0;
     
@@ -92,17 +96,20 @@ public class FinalProject {
             email = scanner.nextLine();
             System.out.println("Password: ");
             password = scanner.nextLine();
-        } while (triesOfSign < 3);
+        } while (triesOfSign < 3); //3 tries.
     }
     
 
+    //Method to add an user at the list of users.
     public static void userRegister(String[] dataUser){
-        String [] userForList = new String[10]; 
+        String [] userForList = new String[10]; //The exescie indicates that the asignation of the variables has to be one by one, i have my doubts if there is problem with
+        //this form of implementation.
         for(byte i = 0; i < userForList.length; i++)
             userForList[i] = dataUser[i];
             users.add(userForList);
     }
 
+    //Method to recieve the user information for the register.
     public static void getUser(){
         String [] user = new String[10];
 
@@ -127,7 +134,7 @@ public class FinalProject {
         System.out.println("Cellphone: ");
         user[CELLPHONE] = scanner.nextLine();
 
-        do {
+        do {//Confirmation of password.
            System.out.println("Password: ");
            user[PASSWORD] = scanner.nextLine();
            System.out.println("Confirm password: ");
@@ -141,9 +148,10 @@ public class FinalProject {
         userRegister(user);
     }
 
+    //Main method.
     public static void main(String[] args) {
         
-        byte optionMenu;
+        byte optionMenu;//Menu is a byte type, this is for save efford.
         do {
             clearTerminal();
             optionMenu = menuLoginRegister();

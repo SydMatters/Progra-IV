@@ -72,13 +72,13 @@ public class FinalProject {
         System.out.println("---------------------------SIGN IN--------------------------");
         System.out.println("------------------------------------------------------------");
 
-        if (users.isEmpty()) {
+        if (users.isEmpty()) { //Bring the if of empty user.
             System.out.println("There are not registered users!!!!");
             System.out.println("Please press enter to continue...");
             scanner.nextLine();
         }
         else{
-            do {
+            do {//Update of the form to ask data.
                 System.out.flush();
                 System.out.println("Email: ");
                 String email = scanner.nextLine(); 

@@ -46,26 +46,21 @@ public class FinalProject {
 
     //Method that applies the logic of the singIn request.
     public static boolean signIn(String entryEmail, String entryPassword) {
-        if (users.isEmpty()) {
-            System.out.println("There are no registered users!!!");
-            return false;
-        } else {
-            for (String[] user : users) {
-                if (user[EMAIL].equals(entryEmail)) {
-                    if (user[PASSWORD].equals(entryPassword)) {
-                        System.out.println("Login successful.");
-                        System.out.println("Please press enter to continue...");
-                        scanner.nextLine();
-                        return true;
-                    } else {
-                        System.out.println("Wrong password. Please try again.");
-                        return false;
-                    }
+        for (String[] user : users) {
+            if (user[EMAIL].equals(entryEmail)) {
+                if (user[PASSWORD].equals(entryPassword)) {
+                    System.out.println("Login successful.");
+                    System.out.println("Please press enter to continue...");
+                    scanner.nextLine();
+                    return true;
+                } else {
+                    System.out.println("Wrong password. Please try again.");
+                    return false;
                 }
             }
-            System.out.println("There's no registered user with email " + entryEmail);//Shows the wrong email address.
-            return false;
         }
+        System.out.println("There's no registered user with email " + entryEmail);//Shows the wrong email address.
+        return false;
     }
     
 
@@ -76,28 +71,33 @@ public class FinalProject {
         System.out.println("------------------------------------------------------------");
         System.out.println("---------------------------SIGN IN--------------------------");
         System.out.println("------------------------------------------------------------");
-        System.out.println("Email: ");
-        String email = scanner.nextLine(); 
-        System.out.println("Password: ");
-        String password = scanner.nextLine(); 
-    
-        do {
-            if (signIn(email, password)) {
-                break;
-            }
-            triesOfSign++;
-            if (triesOfSign == 3) {
-                System.out.println("You have reached the limit of sign-in attempts.");
-                System.out.println("Please press Enter to continue...");
-                scanner.nextLine();
-                System.exit(0);
-            }
-            System.out.println("Please try again.");
-            System.out.println("Email: ");
-            email = scanner.nextLine();
-            System.out.println("Password: ");
-            password = scanner.nextLine();
-        } while (triesOfSign < 3); //3 tries.
+
+        if (users.isEmpty()) {
+            System.out.println("There are not registered users!!!!");
+            System.out.println("Please press enter to continue...");
+            scanner.nextLine();
+        }
+        else{
+            do {
+                System.out.flush();
+                System.out.println("Email: ");
+                String email = scanner.nextLine(); 
+                System.out.println("Password: ");
+                String password = scanner.nextLine(); 
+                if (signIn(email, password)) {
+                    break;
+                }
+                triesOfSign++;
+                if (triesOfSign == 3) {
+                    System.out.println("You have reached the limit of sign-in attempts.");
+                    System.out.println("Please press Enter to continue...");
+                    scanner.nextLine();
+                    System.exit(0);
+                }
+                System.out.println("Please try again.");
+            } while (triesOfSign < 3); //3 tries.
+        }
+        
     }
     
 
